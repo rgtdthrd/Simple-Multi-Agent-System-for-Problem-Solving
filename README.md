@@ -88,13 +88,4 @@ Each run creates an output folder inside `outputs/` containing:
 - `03_final_product_strategy.md`
 - `pipeline_summary.json`
 
-## Why This Is a Multi-Agent System
 
-This project is intentionally designed around specialized roles rather than one giant prompt:
-
-- Each agent has a distinct persona and instruction set.
-- Each agent receives only the context it needs.
-- The coordinator manages orchestration and handoff.
-- The final strategy emerges from staged collaboration.
-
-That makes the pipeline easier to explain, debug, and extend.
