@@ -61,6 +61,7 @@ class ProductStrategyCoordinator:
         self.output_root = self.root_dir / getattr(self.settings, "OUTPUT_ROOT", "outputs")
 
     def run(self, idea: str) -> tuple[PipelineArtifacts, Path]:
+        print(f"idea is ------------------- {idea}")
         run_dir = self._make_run_dir()
 
         idea_brief = self.idea_analyst.run(idea=idea)

@@ -17,10 +17,12 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    
     coordinator = ProductStrategyCoordinator()
     artifacts, run_dir = coordinator.run(args.idea)
 
     print("Product strategy generated successfully.")
+    print(f"Idea is: {args.idea}")
     print(f"Run directory: {run_dir}")
     print()
     print("Final strategy:")
