@@ -7,3 +7,5 @@ venv/
 
 config/config.py
 outputs/
+eval/outputs/*
+!eval/outputs/.gitkeep

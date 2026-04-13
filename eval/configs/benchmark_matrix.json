@@ -1,0 +1,13 @@
+{
+  "dataset_name": "mietic_eval",
+  "model_profiles": [
+    "balanced",
+    "fast",
+    "strong"
+  ],
+  "prompt_sets": [
+    "default"
+  ],
+  "max_cases": 100,
+  "save_raw_outputs": true
+}

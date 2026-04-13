@@ -1,0 +1,13 @@
+{
+  "urgency_accuracy": 0.18,
+  "urgency_macro_f1": 0.18,
+  "emergency_recall": 0.18,
+  "undertriage_penalty": -0.2,
+  "intake_section_coverage": 0.08,
+  "diagnosis_section_coverage": 0.07,
+  "treatment_section_coverage": 0.07,
+  "final_report_section_coverage": 0.08,
+  "latency_penalty_per_second": -0.01,
+  "judge_treatment_safety_score": 0.08,
+  "judge_overall_report_quality_score": 0.08
+}
