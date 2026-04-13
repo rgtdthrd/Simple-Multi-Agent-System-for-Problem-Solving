@@ -6,11 +6,10 @@ Each line is one case with:
 
 - `case_id`
 - `source_dataset`
-- `instruction`
-- `input_text`
-- `gold_output_text`
-- `gold_esi`
-- `gold_urgency_bucket`
+- `question`
+- `options`
+- `gold_answer_idx`
+- `gold_answer_text`
 - `patient_case`
 - `metadata`
 
@@ -18,34 +17,35 @@ Each line is one case with:
 
 ```json
 {
-  "case_id": "mietic_000001",
-  "source_dataset": "MIETIC",
-  "instruction": "Assign the appropriate emergency triage level.",
-  "input_text": "A 67-year-old male presents with fever, productive cough, and shortness of breath for two days...",
-  "gold_output_text": "ESI Level 2. High-risk respiratory complaint...",
-  "gold_esi": 2,
-  "gold_urgency_bucket": "urgent same-day evaluation",
+  "case_id": "medqa_000001",
+  "source_dataset": "MedQA",
+  "question": "A 24-year-old woman presents with fever, cough, and pleuritic chest pain...",
+  "options": {
+    "A": "Pulmonary embolism",
+    "B": "Community-acquired pneumonia",
+    "C": "Pneumothorax",
+    "D": "Asthma exacerbation"
+  },
+  "gold_answer_idx": "B",
+  "gold_answer_text": "Community-acquired pneumonia",
   "patient_case": {
-    "age": "67",
-    "sex": "male",
-    "vitals": "Temp 38.1C, HR 112, BP 96/60, SpO2 92%",
-    "symptoms": "Fever, productive cough, shortness of breath",
-    "medical_history": "COPD, hypertension",
+    "age": "24",
+    "sex": "female",
+    "vitals": "not provided",
+    "symptoms": "A 24-year-old woman presents with fever, cough, and pleuritic chest pain.\n\nAnswer options:\nA. Pulmonary embolism\nB. Community-acquired pneumonia\nC. Pneumothorax\nD. Asthma exacerbation",
+    "medical_history": "not provided",
     "current_medications": "not provided",
     "allergies": "not provided",
-    "duration": "2 days"
+    "duration": "not provided"
   },
   "metadata": {
     "adapter_version": "1.0",
-    "notes": "Fields may be partially heuristic when derived from MIETIC input text."
+    "notes": "Question stem and options were normalized from MedQA JSONL."
   }
 }
 ```
 
-## ESI To Urgency Mapping
+## Notes
 
-- `ESI-1 -> emergency now`
-- `ESI-2 -> urgent same-day evaluation`
-- `ESI-3 -> urgent same-day evaluation`
-- `ESI-4 -> routine medical follow-up`
-- `ESI-5 -> self-care with monitoring`
+- MedQA is used here mainly for `Diagnosis Agent` and overall report evaluation.
+- Because MedQA is not a triage-labeled dataset, triage is evaluated mainly by structure and optional judge scores in this first version.

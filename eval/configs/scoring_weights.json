@@ -1,13 +1,13 @@
 {
-  "urgency_accuracy": 0.18,
-  "urgency_macro_f1": 0.18,
-  "emergency_recall": 0.18,
-  "undertriage_penalty": -0.2,
+  "diagnosis_top1_accuracy": 0.28,
+  "diagnosis_top3_accuracy": 0.18,
+  "diagnosis_contains_gold_answer": 0.12,
   "intake_section_coverage": 0.08,
+  "triage_section_coverage": 0.05,
   "diagnosis_section_coverage": 0.07,
   "treatment_section_coverage": 0.07,
   "final_report_section_coverage": 0.08,
   "latency_penalty_per_second": -0.01,
   "judge_treatment_safety_score": 0.08,
-  "judge_overall_report_quality_score": 0.08
+  "judge_overall_report_quality_score": 0.07
 }

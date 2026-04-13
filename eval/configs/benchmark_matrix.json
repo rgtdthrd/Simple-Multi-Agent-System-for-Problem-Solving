@@ -1,5 +1,5 @@
 {
-  "dataset_name": "mietic_eval",
+  "dataset_name": "medqa_eval",
   "model_profiles": [
     "balanced",
     "fast",

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from difflib import SequenceMatcher
 
 
 EXPECTED_SECTIONS = {
@@ -111,3 +112,62 @@ def compute_macro_f1(labels_true: list[str], labels_pred: list[str]) -> float:
 
 def average(values: list[float]) -> float:
     return sum(values) / len(values) if values else 0.0
+
+
+def normalize_label_text(text: str) -> str:
+    text = normalize_whitespace(text)
+    text = re.sub(r"[^a-z0-9\s]", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def parse_option_mentions(text: str, options: dict[str, str]) -> list[str]:
+    normalized_text = normalize_label_text(text)
+    hits: list[tuple[int, str]] = []
+
+    for option_key, option_text in options.items():
+        key_patterns = [
+            rf"\b{re.escape(option_key.lower())}\b",
+            rf"\boption {re.escape(option_key.lower())}\b",
+            rf"\bchoice {re.escape(option_key.lower())}\b",
+        ]
+        option_pos = None
+        for pattern in key_patterns:
+            match = re.search(pattern, normalized_text)
+            if match:
+                option_pos = match.start()
+                break
+
+        normalized_option = normalize_label_text(option_text)
+        if normalized_option:
+            idx = normalized_text.find(normalized_option)
+            if idx >= 0 and (option_pos is None or idx < option_pos):
+                option_pos = idx
+
+        if option_pos is not None:
+            hits.append((option_pos, option_key))
+
+    hits.sort(key=lambda item: item[0])
+    ordered = []
+    seen = set()
+    for _, option_key in hits:
+        if option_key not in seen:
+            seen.add(option_key)
+            ordered.append(option_key)
+    return ordered
+
+
+def best_option_by_similarity(text: str, options: dict[str, str]) -> str | None:
+    normalized_text = normalize_label_text(text)
+    best_key = None
+    best_score = 0.0
+    for option_key, option_text in options.items():
+        normalized_option = normalize_label_text(option_text)
+        if not normalized_option:
+            continue
+        score = SequenceMatcher(None, normalized_text, normalized_option).ratio()
+        if normalized_option in normalized_text:
+            score += 0.5
+        if score > best_score:
+            best_score = score
+            best_key = option_key
+    return best_key if best_score >= 0.45 else None

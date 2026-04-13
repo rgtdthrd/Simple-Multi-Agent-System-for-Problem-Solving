@@ -4,7 +4,7 @@ This directory contains the evaluation framework for the medical triage multi-ag
 
 ## Goal
 
-Evaluate the system on MIETIC using:
+Evaluate the system on MedQA using:
 
 - per-agent metrics
 - end-to-end metrics
@@ -20,13 +20,13 @@ eval/
 |   `-- scoring_weights.json
 |-- data/
 |   |-- README.md
-|   `-- normalized_mietic_template.jsonl
+|   `-- normalized_medqa_template.jsonl
 |-- outputs/
 |   `-- .gitkeep
 |-- aggregate_results.py
 |-- judge.py
 |-- metrics.py
-|-- mietic_adapter.py
+|-- medqa_adapter.py
 |-- parsers.py
 |-- runner.py
 `-- schemas.py
@@ -34,18 +34,18 @@ eval/
 
 ## Recommended Workflow
 
-1. Get MIETIC access from PhysioNet.
-2. Convert `MIETIC.csv` into normalized JSONL:
+1. Download a MedQA JSONL split.
+2. Convert it into normalized JSONL:
 
 ```bash
-python -m eval.mietic_adapter --input path\to\MIETIC.csv --output eval\data\mietic_eval.jsonl --limit 200
+python -m eval.medqa_adapter --input path\to\US_qbank.jsonl --output eval\data\medqa_eval.jsonl --limit 200
 ```
 
 3. Edit `eval/configs/benchmark_matrix.json` to choose model profiles and prompt sets.
 4. Run the benchmark:
 
 ```bash
-python -m eval.runner --dataset eval\data\mietic_eval.jsonl --matrix eval\configs\benchmark_matrix.json
+python -m eval.runner --dataset eval\data\medqa_eval.jsonl --matrix eval\configs\benchmark_matrix.json
 ```
 
 5. Aggregate the results and rank combinations:
@@ -65,20 +65,18 @@ python -m eval.judge --input eval\outputs\benchmark_YYYYMMDD_HHMMSS\case_results
 ### Intake Agent
 
 - `intake_section_coverage`
-- `intake_missing_info_recall`
 - optional judge grounding score
 
 ### Triage Agent
 
-- `urgency_accuracy`
-- `urgency_macro_f1`
-- `emergency_recall`
-- `undertriage_rate`
-- `overtriage_rate`
 - `triage_section_coverage`
+- optional judge safety score
 
 ### Diagnosis Agent
 
+- `diagnosis_top1_accuracy`
+- `diagnosis_top3_accuracy`
+- `diagnosis_contains_gold_answer`
 - `diagnosis_section_coverage`
 - optional judge plausibility score
 - optional judge grounding score
@@ -97,5 +95,5 @@ python -m eval.judge --input eval\outputs\benchmark_YYYYMMDD_HHMMSS\case_results
 
 ## Important Limitation
 
-MIETIC is primarily a triage dataset, so the strongest automatic gold-label evaluation is for the triage stage.
-Diagnosis and treatment are evaluated mainly with structure checks plus optional LLM-as-a-judge scoring in this framework.
+MedQA is primarily a diagnosis-style multiple-choice dataset, so the strongest automatic gold-label evaluation is for the diagnosis stage.
+Triage and treatment are evaluated mainly with structure checks plus optional LLM-as-a-judge scoring in this first version.
