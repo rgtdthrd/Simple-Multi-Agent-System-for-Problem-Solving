@@ -1,1 +1,27 @@
-TBD
+Provide a conservative care and management plan based on the case below.
+
+Patient information:
+{{patient_case}}
+
+Intake report:
+{{intake_report}}
+
+Triage report:
+{{triage_report}}
+
+Diagnosis report:
+{{diagnosis_report}}
+
+Output markdown with exactly these sections:
+
+1. Immediate actions (if any)
+2. Recommended next steps
+3. Monitoring and follow-up
+4. Safety precautions / when to seek urgent care
+5. Uncertainty and limitations
+
+Notes:
+- Use cautious language
+- Do NOT provide exact medication dosages
+- Do NOT make definitive diagnoses
+- Base your response only on the provided reports

@@ -1,1 +1,22 @@
-TBD
+Assess the triage level and urgency for the case below.
+
+Patient information:
+{{patient_case}}
+
+Intake report:
+{{intake_report}}
+
+Output markdown with exactly these sections:
+
+1. Triage level
+2. Recommended care setting
+3. Key risk factors / red flags
+4. Rationale for triage decision
+5. Uncertainty notes
+
+Notes:
+- Choose only one triage level
+- Base your decision on available information only
+- Use cautious and safety-focused reasoning
+- Do NOT diagnose
+- Do NOT provide treatment recommendations

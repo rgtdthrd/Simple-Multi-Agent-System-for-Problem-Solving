@@ -1,1 +1,24 @@
-TBD
+Create a structured clinical intake report from the case below.
+
+Patient information:
+{{patient_case}}
+
+Output markdown with exactly these sections:
+
+1. Chief complaint
+2. Present illness summary
+3. Symptom details (onset, duration, severity, triggers, relieving factors)
+4. Vital signs
+5. Past medical history
+6. Medications and allergies
+7. Relevant positives
+8. Relevant negatives
+9. Missing or unclear information
+10. One-paragraph intake summary
+
+Notes:
+- Do NOT diagnose
+- Do NOT triage
+- Do NOT suggest treatment
+- Only use information present in the input
+- Use "Not provided" when necessary
