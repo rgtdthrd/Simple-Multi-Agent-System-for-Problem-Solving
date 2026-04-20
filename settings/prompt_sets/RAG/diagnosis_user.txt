@@ -1,0 +1,25 @@
+Produce a differential diagnosis summary for the case below.
+
+Patient information:
+{{patient_case}}
+
+Intake report:
+{{intake_report}}
+
+Triage report:
+{{triage_report}}
+
+Output markdown with exactly these sections:
+
+1. Most likely condition categories
+2. Top differential diagnoses
+3. Supporting evidence
+4. Conflicting or missing evidence
+5. Suggested tests or clinical evaluations to confirm or rule out causes
+6. Diagnostic uncertainty notes
+
+Notes:
+- Rank the most plausible diagnoses first
+- When the case contains candidate diagnoses in the input, reuse the exact answer wording when appropriate
+- Base your reasoning only on the patient information, intake report, and triage report
+- Do NOT present a definitive diagnosis

@@ -1,0 +1,26 @@
+Assess urgency for the case below.
+
+Patient information:
+{{patient_case}}
+
+Intake report:
+{{intake_report}}
+
+Output markdown with exactly these sections:
+
+1. Urgency level
+2. Red-flag findings
+3. Why this risk level fits
+4. Recommended care setting
+5. Immediate next actions
+6. Information still needed for safer triage
+
+Notes:
+- Use exactly one of these urgency levels when possible:
+  - Emergency now
+  - Urgent same-day evaluation
+  - Routine medical follow-up
+  - Self-care with monitoring
+- Base your decision on available information only
+- Do NOT provide a definitive diagnosis
+- Do NOT provide a detailed treatment plan

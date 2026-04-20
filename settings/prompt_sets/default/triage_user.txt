@@ -1,4 +1,4 @@
-Assess the triage level and urgency for the case below.
+Assess urgency for the case below.
 
 Patient information:
 {{patient_case}}
@@ -8,15 +8,19 @@ Intake report:
 
 Output markdown with exactly these sections:
 
-1. Triage level
-2. Recommended care setting
-3. Key risk factors / red flags
-4. Rationale for triage decision
-5. Uncertainty notes
+1. Urgency level
+2. Red-flag findings
+3. Why this risk level fits
+4. Recommended care setting
+5. Immediate next actions
+6. Information still needed for safer triage
 
 Notes:
-- Choose only one triage level
+- Use exactly one of these urgency levels when possible:
+  - Emergency now
+  - Urgent same-day evaluation
+  - Routine medical follow-up
+  - Self-care with monitoring
 - Base your decision on available information only
-- Use cautious and safety-focused reasoning
-- Do NOT diagnose
-- Do NOT provide treatment recommendations
+- Do NOT provide a definitive diagnosis
+- Do NOT provide a detailed treatment plan

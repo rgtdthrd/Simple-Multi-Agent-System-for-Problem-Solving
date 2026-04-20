@@ -10,6 +10,7 @@ Triage report:
 {{triage_report}}
 
 Output markdown with exactly these sections:
+
 1. Most likely condition categories
 2. Top differential diagnoses
 3. Supporting evidence
@@ -17,7 +18,7 @@ Output markdown with exactly these sections:
 5. Suggested tests or clinical evaluations to confirm or rule out causes
 6. Diagnostic uncertainty notes
 
-Guidelines:
-- Use cautious language such as "possible", "may reflect", or "needs evaluation".
-- Rank the most plausible differentials.
-- Focus on categories and likely causes rather than presenting a definitive diagnosis.
+Notes:
+- Rank the most plausible diagnoses first
+- When the case contains candidate diagnoses in the input, reuse the exact answer wording when appropriate
+- Do NOT present a definitive diagnosis

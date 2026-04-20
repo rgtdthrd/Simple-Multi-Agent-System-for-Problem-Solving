@@ -1,12 +1,14 @@
 {
   "dataset_name": "medqa_eval",
   "model_profiles": [
-    "balanced",
-    "fast",
-    "strong"
+    "model_1",
+    "model_2",
+    "model_3",
+    "model_4"
   ],
   "prompt_sets": [
-    "default"
+    "default",
+    "RAG"
   ],
   "max_cases": 100,
   "save_raw_outputs": true

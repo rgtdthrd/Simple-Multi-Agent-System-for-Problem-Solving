@@ -1,0 +1,21 @@
+Create a structured intake report from the case below.
+
+Patient information:
+{{patient_case}}
+
+Output markdown with exactly these sections:
+
+1. Patient summary
+2. Reported vitals
+3. Key symptoms
+4. Symptom timeline
+5. Relevant medical history
+6. Medication and allergy notes
+7. Missing or unclear information
+
+Notes:
+- Do NOT diagnose
+- Do NOT assign triage urgency
+- Do NOT suggest treatment
+- Only use information present in the input
+- Use "Not provided" when necessary

@@ -9,6 +9,7 @@ from time import perf_counter
 from src.medical_triage_system.coordinator import MedicalTriageCoordinator
 from src.medical_triage_system.schemas import PatientCase
 
+from .medqa_adapter import build_patient_case, normalize_options, resolve_gold_answer
 from .metrics import score_case_result
 
 
@@ -39,6 +40,33 @@ def save_jsonl(path: Path, rows: list[dict]) -> None:
     )
 
 
+def normalize_case(case: dict, case_index: int) -> dict:
+    if "patient_case" in case:
+        normalized = dict(case)
+        normalized.setdefault("case_id", f"case_{case_index:06d}")
+        normalized.setdefault("source_dataset", "MedQA")
+        normalized.setdefault("question", case.get("question") or case.get("input_text"))
+        normalized.setdefault("options", case.get("options", {}))
+        normalized.setdefault("gold_answer_idx", case.get("gold_answer_idx"))
+        normalized.setdefault("gold_answer_text", case.get("gold_answer_text") or case.get("gold_output_text"))
+        return normalized
+
+    question = str(case.get("question") or case.get("query") or case.get("input") or "").strip()
+    options = normalize_options(case.get("options"))
+    gold_answer_idx, gold_answer_text = resolve_gold_answer(case, options)
+
+    return {
+        "case_id": case.get("case_id", f"medqa_{case_index:06d}"),
+        "source_dataset": case.get("source_dataset", "MedQA"),
+        "question": question,
+        "options": options,
+        "gold_answer_idx": gold_answer_idx,
+        "gold_answer_text": gold_answer_text,
+        "patient_case": build_patient_case(question, options),
+        "metadata": case.get("metadata", {}),
+    }
+
+
 def main() -> None:
     args = parse_args()
     dataset_path = Path(args.dataset)
@@ -49,7 +77,8 @@ def main() -> None:
     dataset = load_jsonl(dataset_path)
     matrix = load_json(matrix_path)
     max_cases = matrix.get("max_cases")
-    cases = dataset[:max_cases] if max_cases else dataset
+    raw_cases = dataset[:max_cases] if max_cases else dataset
+    cases = [normalize_case(case, idx) for idx, case in enumerate(raw_cases, start=1)]
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     run_dir = output_dir / f"benchmark_{timestamp}"

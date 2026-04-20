@@ -40,20 +40,29 @@ class MedicalTriageCoordinator:
         self.root_dir = Path(__file__).resolve().parents[2]
         self.save_outputs = save_outputs
         self.settings = load_settings()
-        api_key = getattr(self.settings, "OPENAI_API_KEY", "")
-        if not api_key or "your-openai-api-key" in api_key or "replace-with-your-real" in api_key:
-            raise ValueError(
-                "Missing a real OpenAI API key. Copy config/mock_config.py to config/config.py and fill it in."
-            )
-
-        self.llm_client = LLMClient(
-            api_key=api_key,
-            base_url=getattr(self.settings, "OPENAI_BASE_URL", None),
-        )
         self.model_profile_name = model_profile_name or getattr(self.settings, "ACTIVE_MODEL_PROFILE", "balanced")
         self.prompt_set_name = prompt_set_name or getattr(self.settings, "ACTIVE_PROMPT_SET", "default")
         self.model_profile = load_model_profile(self.root_dir, self.model_profile_name)
         self.prompt_set = load_prompt_set(self.root_dir, self.prompt_set_name)
+        provider_name = self.model_profile.get("provider", "default_provider")
+        providers = getattr(self.settings, "PROVIDERS", {})
+        provider_config = providers.get(provider_name)
+        if not provider_config:
+            raise ValueError(
+                f"Provider '{provider_name}' is not defined in config/config.py. "
+                "Add it under PROVIDERS before running this model profile."
+            )
+
+        api_key = provider_config.get("api_key", "")
+        if not api_key or "your-" in api_key or "replace-with-" in api_key:
+            raise ValueError(
+                f"Provider '{provider_name}' is missing a real API key in config/config.py."
+            )
+
+        self.llm_client = LLMClient(
+            api_key=api_key,
+            base_url=provider_config.get("base_url"),
+        )
 
         self.intake_agent = IntakeAgent(
             name="Intake Agent",
