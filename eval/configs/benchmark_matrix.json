@@ -10,6 +10,6 @@
     "default",
     "RAG"
   ],
-  "max_cases": 100,
+  "max_cases": 10,
   "save_raw_outputs": true
 }

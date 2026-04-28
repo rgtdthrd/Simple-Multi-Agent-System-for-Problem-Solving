@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Triage Multi-Agent System</title>
+    <link rel="icon" href="/favicon.ico" type="image/svg+xml">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="hero">
+            <div class="hero-copy">
+                <p class="eyebrow">Multi-Agent Medical Reasoning Demo</p>
+                <h1>Medical Triage Strategy Workspace</h1>
+                <p class="hero-text">
+                    Enter a patient case, choose a model profile and prompt strategy,
+                    and review the full four-agent reasoning chain from intake to final guidance.
+                </p>
+            </div>
+            <div class="hero-card">
+                <p class="hero-card-label">Pipeline</p>
+                <p class="hero-card-flow">Intake → Triage → Diagnosis → Treatment</p>
+                <p class="hero-card-note">
+                    Educational prototype only. It is not a substitute for professional medical care.
+                </p>
+            </div>
+        </header>
+
+        <main class="layout">
+            <section class="panel form-panel">
+                <div class="section-heading">
+                    <p class="section-kicker">Input</p>
+                    <h2>Patient Case</h2>
+                </div>
+
+                <form id="case-form">
+                    <div class="grid two-col">
+                        <label>
+                            <span>Age</span>
+                            <input type="text" name="age" placeholder="e.g. 21">
+                        </label>
+                        <label>
+                            <span>Sex</span>
+                            <input type="text" name="sex" placeholder="e.g. female">
+                        </label>
+                    </div>
+
+                    <label>
+                        <span>Vitals</span>
+                        <textarea name="vitals" rows="3" required placeholder="Temp 38.3C, HR 108, BP 110/70, SpO2 98%"></textarea>
+                    </label>
+
+                    <label>
+                        <span>Symptoms</span>
+                        <textarea name="symptoms" rows="5" required placeholder="Fever, sore throat, fatigue, swollen neck glands"></textarea>
+                    </label>
+
+                    <div class="grid two-col">
+                        <label>
+                            <span>Duration</span>
+                            <input type="text" name="duration" placeholder="e.g. 3 days">
+                        </label>
+                        <label>
+                            <span>Allergies</span>
+                            <input type="text" name="allergies" placeholder="e.g. Penicillin">
+                        </label>
+                    </div>
+
+                    <label>
+                        <span>Medical History</span>
+                        <textarea name="medical_history" rows="3" placeholder="No chronic illness"></textarea>
+                    </label>
+
+                    <label>
+                        <span>Current Medications</span>
+                        <textarea name="current_medications" rows="3" placeholder="Ibuprofen as needed"></textarea>
+                    </label>
+
+                    <div class="grid two-col">
+                        <label>
+                            <span>Model Profile</span>
+                            <select name="model_profile">
+                                {% for profile in model_profiles %}
+                                <option value="{{ profile }}" {% if profile == active_model_profile %}selected{% endif %}>{{ profile }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label>
+                            <span>Prompt Set</span>
+                            <select name="prompt_set">
+                                {% for prompt_set in prompt_sets %}
+                                <option value="{{ prompt_set }}" {% if prompt_set == active_prompt_set %}selected{% endif %}>{{ prompt_set }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="actions">
+                        <button type="submit" id="submit-button">Run Analysis</button>
+                        <p id="status" class="status idle">Ready for input.</p>
+                    </div>
+                </form>
+            </section>
+
+            <section class="panel results-panel">
+                <div class="section-heading">
+                    <p class="section-kicker">Output</p>
+                    <h2>Agent Reports</h2>
+                </div>
+
+                <div class="result-meta" id="result-meta">
+                    <div>
+                        <span class="meta-label">Model</span>
+                        <strong id="meta-model">-</strong>
+                    </div>
+                    <div>
+                        <span class="meta-label">Prompt</span>
+                        <strong id="meta-prompt">-</strong>
+                    </div>
+                    <div>
+                        <span class="meta-label">Saved Run</span>
+                        <strong id="meta-run">-</strong>
+                    </div>
+                </div>
+
+                <div class="cards" id="result-cards">
+                    <article class="result-card">
+                        <div class="card-head">
+                            <h3>Final Report</h3>
+                            <span id="duration-treatment">-</span>
+                        </div>
+                        <pre id="report-treatment">Submit a case to generate the final treatment guidance.</pre>
+                    </article>
+
+                    <article class="result-card">
+                        <div class="card-head">
+                            <h3>Intake Agent</h3>
+                            <span id="duration-intake">-</span>
+                        </div>
+                        <pre id="report-intake">The structured intake summary will appear here.</pre>
+                    </article>
+
+                    <article class="result-card">
+                        <div class="card-head">
+                            <h3>Triage Agent</h3>
+                            <span id="duration-triage">-</span>
+                        </div>
+                        <pre id="report-triage">The urgency assessment will appear here.</pre>
+                    </article>
+
+                    <article class="result-card">
+                        <div class="card-head">
+                            <h3>Diagnosis Agent</h3>
+                            <span id="duration-diagnosis">-</span>
+                        </div>
+                        <pre id="report-diagnosis">The differential diagnosis will appear here.</pre>
+                    </article>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const form = document.getElementById("case-form");
+        const statusNode = document.getElementById("status");
+        const submitButton = document.getElementById("submit-button");
+
+        function setStatus(message, kind) {
+            statusNode.textContent = message;
+            statusNode.className = `status ${kind}`;
+        }
+
+        function formatDuration(value) {
+            if (value === null || value === undefined) {
+                return "-";
+            }
+            return `${value.toFixed(2)}s`;
+        }
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData.entries());
+
+            submitButton.disabled = true;
+            setStatus("Running the multi-agent pipeline. This may take a little while.", "loading");
+
+            try {
+                const response = await fetch("/api/analyze", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.detail || "Request failed.");
+                }
+
+                document.getElementById("meta-model").textContent = data.model_profile;
+                document.getElementById("meta-prompt").textContent = data.prompt_set;
+                document.getElementById("meta-run").textContent = data.run_dir || "not saved";
+
+                document.getElementById("report-treatment").textContent = data.reports.treatment;
+                document.getElementById("report-intake").textContent = data.reports.intake;
+                document.getElementById("report-triage").textContent = data.reports.triage;
+                document.getElementById("report-diagnosis").textContent = data.reports.diagnosis;
+
+                document.getElementById("duration-intake").textContent = formatDuration(data.durations.intake);
+                document.getElementById("duration-triage").textContent = formatDuration(data.durations.triage);
+                document.getElementById("duration-diagnosis").textContent = formatDuration(data.durations.diagnosis);
+                document.getElementById("duration-treatment").textContent = formatDuration(data.durations.treatment);
+
+                setStatus("Analysis completed successfully.", "success");
+            } catch (error) {
+                setStatus(error.message || "Something went wrong while running the analysis.", "error");
+            } finally {
+                submitButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

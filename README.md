@@ -104,6 +104,23 @@ To test a new prompt version, copy `settings/prompt_sets/default/` into a new fo
 python -m src.medical_triage_system.main --age "21" --sex "female" --vitals "Temp 38.3C, HR 108, BP 110/70, SpO2 98%" --symptoms "Fever, sore throat, fatigue, swollen neck glands" --history "No chronic illness" --medications "Ibuprofen as needed" --allergies "Penicillin" --duration "3 days"
 ```
 
+## Web App
+
+Run the local web interface with:
+
+```bash
+uvicorn src.medical_triage_system.web_app:app --reload
+```
+
+Then open [http://127.0.0.1:8000](http://127.0.0.1:8000).
+
+The page lets you:
+
+- enter a patient case
+- choose a model profile
+- choose a prompt set
+- review the full outputs from all four agents in one place
+
 ## Output
 
 Each run creates a folder inside `outputs/` containing:

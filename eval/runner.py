@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import argparse
 import json
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
 from time import perf_counter
 
 from src.medical_triage_system.coordinator import MedicalTriageCoordinator
 from src.medical_triage_system.schemas import PatientCase
+from tqdm import tqdm
 
 from .medqa_adapter import build_patient_case, normalize_options, resolve_gold_answer
 from .metrics import score_case_result
@@ -18,6 +20,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dataset", required=True, help="Path to normalized evaluation JSONL dataset.")
     parser.add_argument("--matrix", required=True, help="Path to benchmark matrix JSON.")
     parser.add_argument("--output-dir", default="eval/outputs", help="Directory for benchmark results.")
+    parser.add_argument("--max-workers", type=int, default=1, help="Number of parallel case workers per combination.")
     return parser.parse_args()
 
 
@@ -67,6 +70,43 @@ def normalize_case(case: dict, case_index: int) -> dict:
     }
 
 
+def run_case(model_profile: str, prompt_set: str, case: dict) -> dict:
+    coordinator = MedicalTriageCoordinator(
+        model_profile_name=model_profile,
+        prompt_set_name=prompt_set,
+        save_outputs=False,
+    )
+    patient_case = PatientCase(**case["patient_case"])
+    started_at = perf_counter()
+    artifacts, _ = coordinator.run(patient_case)
+    total_duration = perf_counter() - started_at
+
+    row = {
+        "case_id": case["case_id"],
+        "source_dataset": case["source_dataset"],
+        "model_profile": model_profile,
+        "prompt_set": prompt_set,
+        "question": case.get("question"),
+        "options": case.get("options", {}),
+        "gold_answer_idx": case.get("gold_answer_idx"),
+        "gold_answer_text": case.get("gold_answer_text"),
+        "input_text": case.get("question") or case.get("input_text"),
+        "gold_output_text": case.get("gold_answer_text") or case.get("gold_output_text"),
+        "patient_case": case["patient_case"],
+        "intake_output": artifacts.intake_report.output_text,
+        "triage_output": artifacts.triage_report.output_text,
+        "diagnosis_output": artifacts.diagnosis_report.output_text,
+        "treatment_output": artifacts.treatment_report.output_text,
+        "intake_duration_seconds": artifacts.intake_report.duration_seconds,
+        "triage_duration_seconds": artifacts.triage_report.duration_seconds,
+        "diagnosis_duration_seconds": artifacts.diagnosis_report.duration_seconds,
+        "treatment_duration_seconds": artifacts.treatment_report.duration_seconds,
+        "total_duration_seconds": total_duration,
+    }
+    row.update(score_case_result(row))
+    return row
+
+
 def main() -> None:
     args = parse_args()
     dataset_path = Path(args.dataset)
@@ -83,6 +123,7 @@ def main() -> None:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     run_dir = output_dir / f"benchmark_{timestamp}"
     run_dir.mkdir(parents=True, exist_ok=True)
+    total_runs = len(cases) * len(matrix["model_profiles"]) * len(matrix["prompt_sets"])
 
     save_json(
         run_dir / "run_manifest.json",
@@ -91,47 +132,46 @@ def main() -> None:
             "matrix": matrix,
             "num_cases": len(cases),
             "started_at": timestamp,
+            "max_workers": args.max_workers,
         },
     )
+    print(f"Benchmark output directory: {run_dir}")
+    print(
+        f"Running {len(cases)} cases x {len(matrix['model_profiles'])} model profiles x "
+        f"{len(matrix['prompt_sets'])} prompt sets = {total_runs} total runs"
+    )
+    print(f"Parallel workers per combination: {args.max_workers}")
 
     all_rows: list[dict] = []
+    progress_bar = tqdm(total=total_runs, desc="Benchmark progress", unit="case")
     for model_profile in matrix["model_profiles"]:
         for prompt_set in matrix["prompt_sets"]:
-            coordinator = MedicalTriageCoordinator(
-                model_profile_name=model_profile,
-                prompt_set_name=prompt_set,
-                save_outputs=False,
-            )
-            for case in cases:
-                patient_case = PatientCase(**case["patient_case"])
-                started_at = perf_counter()
-                artifacts, _ = coordinator.run(patient_case)
-                total_duration = perf_counter() - started_at
-
-                row = {
-                    "case_id": case["case_id"],
-                    "source_dataset": case["source_dataset"],
-                    "model_profile": model_profile,
-                    "prompt_set": prompt_set,
-                    "question": case.get("question"),
-                    "options": case.get("options", {}),
-                    "gold_answer_idx": case.get("gold_answer_idx"),
-                    "gold_answer_text": case.get("gold_answer_text"),
-                    "input_text": case.get("question") or case.get("input_text"),
-                    "gold_output_text": case.get("gold_answer_text") or case.get("gold_output_text"),
-                    "patient_case": case["patient_case"],
-                    "intake_output": artifacts.intake_report.output_text,
-                    "triage_output": artifacts.triage_report.output_text,
-                    "diagnosis_output": artifacts.diagnosis_report.output_text,
-                    "treatment_output": artifacts.treatment_report.output_text,
-                    "intake_duration_seconds": artifacts.intake_report.duration_seconds,
-                    "triage_duration_seconds": artifacts.triage_report.duration_seconds,
-                    "diagnosis_duration_seconds": artifacts.diagnosis_report.duration_seconds,
-                    "treatment_duration_seconds": artifacts.treatment_report.duration_seconds,
-                    "total_duration_seconds": total_duration,
-                }
-                row.update(score_case_result(row))
-                all_rows.append(row)
+            print(f"\nStarting combination: model_profile={model_profile}, prompt_set={prompt_set}")
+            combo_bar = tqdm(total=len(cases), desc=f"{model_profile} + {prompt_set}", unit="case", leave=False)
+            if args.max_workers <= 1:
+                for case in cases:
+                    row = run_case(model_profile, prompt_set, case)
+                    all_rows.append(row)
+                    progress_bar.update(1)
+                    combo_bar.update(1)
+                    combo_bar.set_postfix(case_id=case["case_id"], refresh=False)
+            else:
+                with ThreadPoolExecutor(max_workers=args.max_workers) as executor:
+                    future_to_case = {
+                        executor.submit(run_case, model_profile, prompt_set, case): case
+                        for case in cases
+                    }
+                    for future in as_completed(future_to_case):
+                        case = future_to_case[future]
+                        row = future.result()
+                        all_rows.append(row)
+                        progress_bar.update(1)
+                        combo_bar.update(1)
+                        combo_bar.set_postfix(case_id=case["case_id"], refresh=False)
+            combo_bar.close()
+            save_jsonl(run_dir / "case_results.partial.jsonl", all_rows)
+            print(f"Finished combination: model_profile={model_profile}, prompt_set={prompt_set}")
+    progress_bar.close()
 
     save_jsonl(run_dir / "case_results.jsonl", all_rows)
     print(f"Saved benchmark case results to {run_dir / 'case_results.jsonl'}")

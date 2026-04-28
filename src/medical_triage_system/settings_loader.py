@@ -24,6 +24,13 @@ def load_model_profile(root_dir: Path, profile_name: str) -> dict[str, str]:
     return profiles[profile_name]
 
 
+def list_model_profiles(root_dir: Path) -> list[str]:
+    profile_path = root_dir / "settings" / "model_profiles.py"
+    module = _load_python_module("model_profiles_list", profile_path)
+    profiles = getattr(module, "MODEL_PROFILES", {})
+    return sorted(profiles)
+
+
 def load_prompt_set(root_dir: Path, prompt_set_name: str) -> dict[str, str]:
     prompt_dir = root_dir / "settings" / "prompt_sets" / prompt_set_name
     if not prompt_dir.exists():
@@ -41,6 +48,11 @@ def load_prompt_set(root_dir: Path, prompt_set_name: str) -> dict[str, str]:
     }
 
     return {key: path.read_text(encoding="utf-8").strip() for key, path in prompt_files.items()}
+
+
+def list_prompt_sets(root_dir: Path) -> list[str]:
+    prompt_root = root_dir / "settings" / "prompt_sets"
+    return sorted(path.name for path in prompt_root.iterdir() if path.is_dir())
 
 
 def render_prompt(template: str, **values: str) -> str:
