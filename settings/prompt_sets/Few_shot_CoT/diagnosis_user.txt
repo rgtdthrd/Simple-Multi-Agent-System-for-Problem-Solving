@@ -1,0 +1,42 @@
+Produce a differential diagnosis summary for the case below.
+
+Patient information:
+{{patient_case}}
+
+Intake report:
+{{intake_report}}
+
+Triage report:
+{{triage_report}}
+
+---
+
+Before generating the final answer, follow this reasoning process internally:
+
+1. Extract and consolidate key symptoms, duration, and risk factors
+2. Identify broad condition categories relevant to the presentation
+3. Generate a list of plausible diagnoses
+4. Evaluate each diagnosis against supporting and conflicting evidence
+5. Prioritize diagnoses based on overall consistency and risk
+6. Identify missing information that limits diagnostic confidence
+
+Do NOT output the full reasoning process. Instead, provide concise, structured results following the format below.
+
+---
+
+Output markdown with exactly these sections:
+
+1. Most likely condition categories
+2. Top differential diagnoses
+3. Supporting evidence
+4. Conflicting or missing evidence
+5. Suggested tests or clinical evaluations to confirm or rule out causes
+6. Diagnostic uncertainty notes
+
+---
+
+Notes:
+- Rank the most plausible diagnoses first
+- When the case contains candidate diagnoses in the input, reuse the exact answer wording when appropriate
+- Do NOT present a definitive diagnosis
+- Use cautious and medically appropriate language (e.g., "possible", "may indicate", "cannot rule out")

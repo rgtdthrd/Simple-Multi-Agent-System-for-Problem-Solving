@@ -1,0 +1,45 @@
+Assess urgency for the case below.
+
+Patient information:
+{{patient_case}}
+
+Intake report:
+{{intake_report}}
+
+---
+
+Before generating the final answer, follow this risk assessment process internally:
+
+1. Extract key symptoms, vital signs, and relevant risk factors  
+2. Identify any red-flag findings (e.g., severe symptoms, abnormal vitals, high-risk history)  
+3. Determine whether serious or life-threatening conditions cannot be ruled out  
+4. Assess overall risk level (low, moderate, high) based on available evidence  
+5. Map the risk level to one of the allowed urgency levels  
+6. Identify missing or unclear information that could change the triage decision  
+
+Do NOT output this reasoning process. Only provide the final structured result.
+
+---
+
+Output markdown with exactly these sections:
+
+1. Urgency level
+2. Red-flag findings
+3. Why this risk level fits
+4. Recommended care setting
+5. Immediate next actions
+6. Information still needed for safer triage
+
+---
+
+Notes:
+- Use exactly one of these urgency levels:
+  - Emergency now
+  - Urgent same-day evaluation
+  - Routine medical follow-up
+  - Self-care with monitoring
+- If serious conditions cannot be ruled out, choose a higher urgency level
+- Base your decision only on available information
+- Do NOT provide a definitive diagnosis
+- Do NOT provide a detailed treatment plan
+- Use cautious, safety-focused language

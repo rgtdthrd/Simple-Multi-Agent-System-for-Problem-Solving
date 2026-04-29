@@ -1,0 +1,42 @@
+Create a structured intake report from the case below.
+
+Patient information:
+{{patient_case}}
+
+---
+
+Before generating the final report, follow this extraction process internally:
+
+1. Identify all explicitly mentioned symptoms and signs
+2. Extract any reported vital measurements (e.g., temperature, heart rate)
+3. Determine timing details (onset, duration, progression)
+4. Extract relevant medical history, medications, and allergies if mentioned
+5. Identify explicitly denied symptoms (e.g., "no fever", "denies chest pain")
+6. Detect unclear, ambiguous, or conflicting statements
+7. Identify important missing clinical details
+
+Do NOT infer or assume any information that is not explicitly stated.
+
+Do NOT output this reasoning process. Only output the final structured report.
+
+---
+
+Output markdown with exactly these sections:
+
+1. Patient summary
+2. Reported vitals
+3. Key symptoms
+4. Symptom timeline
+5. Relevant medical history
+6. Medication and allergy notes
+7. Missing or unclear information
+
+---
+
+Notes:
+- Do NOT diagnose
+- Do NOT assign triage urgency
+- Do NOT suggest treatment
+- Only use information present in the input
+- Use "Not provided" when necessary
+- Use neutral, clinical, and concise language

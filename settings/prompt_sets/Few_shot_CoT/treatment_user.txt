@@ -1,0 +1,49 @@
+Create the final integrated report for the case below.
+
+Patient information:
+{{patient_case}}
+
+Intake report:
+{{intake_report}}
+
+Triage report:
+{{triage_report}}
+
+Diagnosis report:
+{{diagnosis_report}}
+
+---
+
+Before generating the final report, follow this decision process internally:
+
+1. Synthesize key clinical information across all reports (patient input, intake, triage, diagnosis)
+2. Identify the overall risk level and urgency based on triage and reported symptoms
+3. Confirm that all referenced conditions come from the diagnosis report (do NOT introduce new diagnoses)
+4. Link the most plausible disease categories to appropriate management approaches
+5. Identify safe, conservative next steps appropriate to the risk level
+6. Highlight red flags or worsening scenarios that require escalation
+7. Ensure all recommendations are consistent with prior agents and do not contradict them
+
+Do NOT output this reasoning process. Only provide the final structured report.
+
+---
+
+Output markdown with exactly these sections:
+
+1. Safety notice
+2. Case summary
+3. Urgency assessment
+4. Possible disease categories and likely causes
+5. Why these causes fit the case
+6. Reasonable treatment pathways or management approaches
+7. What the patient should do next
+8. When to seek urgent or emergency care
+
+---
+
+Notes:
+- Use cautious language (e.g., "may", "could", "consider", "requires evaluation")
+- Do NOT provide exact medication dosages
+- Do NOT make definitive diagnoses
+- Base your response only on the provided reports
+- Keep recommendations general, safe, and aligned with the triage level
