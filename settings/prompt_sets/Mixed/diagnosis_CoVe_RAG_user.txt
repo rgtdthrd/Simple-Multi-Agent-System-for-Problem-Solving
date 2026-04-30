@@ -1,0 +1,90 @@
+Produce a differential diagnosis summary for the case below.
+
+Patient information:
+{{patient_case}}
+
+Intake report:
+{{intake_report}}
+
+Triage report:
+{{triage_report}}
+
+## Task
+
+Generate a structured, evidence-based differential diagnosis using a verification-driven reasoning process.
+
+## CoVe + RAG Process (Internal Only — Do NOT output)
+
+You MUST internally follow these steps:
+
+### Step 1 — Case Consolidation
+- Combine key findings from:
+  - Symptoms
+  - Duration and progression
+  - Risk factors
+- Preserve all clinically relevant details
+
+### Step 2 — Candidate Diagnosis Generation
+- Generate a focused list (3–6) of plausible diagnoses
+- Prefer common and high-risk conditions when supported
+- Avoid rare conditions unless clearly suggested
+
+
+### Step 3 — Assumption Identification
+For each diagnosis:
+- Identify its expected clinical pattern:
+  - Typical symptoms
+  - Usual progression
+  - Known risk factors
+
+### Step 4 — Evidence Verification (Critical)
+
+For EACH diagnosis:
+
+1. Supporting Evidence  
+   - Must be explicitly present in the case  
+   - Do NOT assume missing findings  
+
+2. Conflicting Evidence  
+   - Identify findings that do not fit  
+   - Do NOT ignore contradictions  
+
+3. Pattern Matching (RAG-style grounding)  
+   - Compare case features with typical clinical presentation  
+   - Assess whether alignment is strong, partial, or weak  
+
+4. Overreach Check  
+   - Ensure no conclusions exceed available evidence  
+
+### Step 5 — Re-ranking and Filtering
+- Remove or downgrade weakly supported diagnoses  
+- Rank remaining diagnoses based on:
+  - Evidence consistency  
+  - Clinical plausibility  
+  - Risk if missed  
+
+### Step 6 — Diagnostic Gaps
+- Identify missing information that limits confidence  
+- Link gaps to specific diagnoses when possible  
+
+Do NOT output this reasoning process.
+
+## Output Format (Strict)
+
+Output markdown with exactly these sections:
+
+1. Most likely condition categories  
+2. Top differential diagnoses  
+3. Supporting evidence  
+4. Conflicting or missing evidence  
+5. Suggested tests or clinical evaluations to confirm or rule out causes  
+6. Diagnostic uncertainty notes  
+
+## Output Rules
+
+- Rank the most plausible diagnoses first  
+- Use cautious medical language:
+  (e.g., "possible", "may indicate", "cannot rule out")  
+- When candidate diagnoses are provided in the input, reuse exact wording when appropriate  
+- Do NOT present a definitive diagnosis  
+- Keep all statements explicitly grounded in the case  

@@ -1,0 +1,76 @@
+Assess urgency for the case below.
+
+Patient information:
+{{patient_case}}
+
+Intake report:
+{{intake_report}}
+
+## Task
+
+Determine the appropriate urgency level using a structured, safety-focused reasoning process.
+
+## ReAct Process (Internal Only — Do NOT output)
+
+You MUST internally follow these steps:
+
+### Step 1 — Extract Key Signals
+- Identify:
+  - Main symptoms
+  - Symptom severity and progression
+  - Any abnormal findings
+  - Patient risk factors (if present)
+
+### Step 2 — Red Flag Scan
+- Check for any signs that could indicate serious or life-threatening conditions
+- Treat unclear but concerning symptoms as potential red flags
+
+### Step 3 — Risk Evaluation
+- Assess:
+  - Severity and combination of symptoms
+  - Presence of red flags
+  - Patient vulnerability (if known)
+- Consider worst-case plausible conditions (without diagnosing)
+
+### Step 4 — Urgency Decision
+- Assign urgency based on:
+  - Immediate risk
+  - Potential for deterioration
+- If serious conditions cannot be ruled out → choose a higher urgency level
+
+### Step 5 — Safety Reflection (Critical)
+- Ask internally:
+  - “What is the risk if I underestimate this case?”
+  - “Could this require urgent care despite limited information?”
+
+If yes → increase urgency level accordingly.
+
+### Step 6 — Identify Information Gaps
+- Determine what missing data could significantly change triage safety
+
+Do NOT output this reasoning process.
+
+## Output Format (Strict)
+
+Output markdown with exactly these sections:
+
+1. Urgency level  
+2. Red-flag findings  
+3. Why this risk level fits  
+4. Recommended care setting  
+5. Immediate next actions  
+6. Information still needed for safer triage  
+
+## Output Rules
+
+- Use exactly ONE of these urgency levels:
+  - Emergency now  
+  - Urgent same-day evaluation  
+  - Routine medical follow-up  
+  - Self-care with monitoring  
+
+- Base decisions ONLY on available information  
+- Do NOT provide a definitive diagnosis  
+- Do NOT provide a detailed treatment plan  
+- Be explicit about uncertainty  
+- Prioritize patient safety when uncertain  

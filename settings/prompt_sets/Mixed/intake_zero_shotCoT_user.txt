@@ -1,0 +1,109 @@
+Produce a differential diagnosis summary for the case below.
+
+Patient information:
+{{patient_case}}
+
+Intake report:
+{{intake_report}}
+
+Triage report:
+{{triage_report}}
+
+## Core Constraints (Strict)
+
+You must NOT:
+- Provide a definitive diagnosis
+- Ignore conflicting evidence
+- Introduce diagnoses not supported by the case
+- Infer missing facts as if they were present
+- Recommend treatments
+
+All conclusions must be explicitly grounded in the provided information.
+
+
+## Objective
+
+Generate a structured, evidence-based differential diagnosis that:
+
+- Maps symptoms to condition categories
+- Proposes plausible diagnoses with justification
+- Explicitly weighs supporting vs conflicting evidence
+- Highlights uncertainty and missing data
+
+## Zero-Shot Structured Reasoning (Internal Only)
+
+You MUST internally follow this exact sequence:
+
+### Step 1 — Case Consolidation
+- Combine key findings from:
+  - Symptoms
+  - Duration and progression
+  - Risk factors
+- Remove redundancy but DO NOT lose detail
+
+### Step 2 — Condition Category Mapping
+- Map presentation to broad clinical categories
+  (e.g., infectious, cardiovascular, neurological, metabolic, etc.)
+- Only include categories supported by the case
+
+### Step 3 — Candidate Diagnosis Generation
+- Generate a focused list (3–6) of plausible diagnoses
+- Each must be explainable by the available evidence
+- Avoid rare conditions unless strongly suggested
+
+### Step 4 — Evidence Alignment
+For EACH diagnosis:
+- Identify supporting evidence (explicitly present)
+- Identify conflicting evidence
+- Do NOT infer missing support
+
+### Step 5 — Prioritization
+- Rank diagnoses based on:
+  - Overall evidence consistency
+  - Clinical plausibility
+  - Potential risk if missed
+- Keep ranking stable and evidence-driven
+
+### Step 6 — Diagnostic Gaps
+- Identify missing clinical information that limits certainty
+- Link missing data to specific diagnoses when possible
+
+Do NOT output this reasoning process.
+
+## Anti-Hallucination Rules
+
+- Every diagnosis must map to at least one explicit symptom or risk factor  
+- Do NOT fabricate supporting evidence  
+- Do NOT upgrade weak associations into strong claims  
+- If evidence is weak → reflect that in uncertainty, NOT omission  
+
+## Self-Check (Internal, Mandatory)
+
+Before output, verify:
+- No definitive diagnosis stated  
+- Each diagnosis has supporting AND/OR conflicting evidence  
+- No unsupported diagnoses included  
+- Ranking is consistent with evidence  
+- Uncertainty is explicitly acknowledged  
+
+If any issue is found → revise before final output.
+
+## Output Format (Strict)
+
+Output markdown with exactly these sections:
+
+1. Most likely condition categories  
+2. Top differential diagnoses  
+3. Supporting evidence  
+4. Conflicting or missing evidence  
+5. Suggested tests or clinical evaluations to confirm or rule out causes  
+6. Diagnostic uncertainty notes  
+
+## Output Rules
+
+- Rank the most plausible diagnoses first  
+- Use cautious medical language:
+  (e.g., "possible", "may indicate", "cannot rule out")  
+- Keep statements concise and evidence-linked  
+- When the case contains candidate diagnoses, reuse exact wording when appropriate  
+- Do NOT include reasoning steps  
